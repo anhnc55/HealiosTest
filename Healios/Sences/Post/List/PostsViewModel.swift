@@ -28,15 +28,13 @@ extension PostsViewModel: ViewModelType {
     func transform(_ input: Input, _ cancelBag: CancelBag) -> Output {
         let output = Output()
         
-        input.loadTrigger
+        let postsFromDB = input.loadTrigger
             .flatMap({
                 self.useCase.retrievePostFromDB()
                     .catch { _ in Empty() }
             })
-            .assign(to: \.posts, on: output)
-            .store(in: cancelBag)
         
-        input.loadTrigger
+        let postsFromAPI = input.loadTrigger
             .flatMap { posts in
                 self.useCase
                     .getPosts()
@@ -51,6 +49,9 @@ extension PostsViewModel: ViewModelType {
                 self.useCase.retrievePostFromDB()
                     .catch { _ in Empty() }
             })
+        
+        Publishers.Concatenate(prefix: postsFromDB,
+                               suffix: postsFromAPI)
             .assign(to: \.posts, on: output)
             .store(in: cancelBag)
 

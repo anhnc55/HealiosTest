@@ -3,11 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1B0509CF26D540C200E0F817 /* Post+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0509CE26D540C200E0F817 /* Post+CoreData.swift */; };
+		1B0E60E826D5F157007EA89A /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1B0E60E726D5F157007EA89A /* RxSwift */; };
+		1B0E60EA26D5F157007EA89A /* RxTest in Frameworks */ = {isa = PBXBuildFile; productRef = 1B0E60E926D5F157007EA89A /* RxTest */; };
+		1B0E60EC26D5F157007EA89A /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 1B0E60EB26D5F157007EA89A /* RxRelay */; };
+		1B0E60EE26D5F157007EA89A /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 1B0E60ED26D5F157007EA89A /* RxCocoa */; };
+		1B0E60F026D5F157007EA89A /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 1B0E60EF26D5F157007EA89A /* RxBlocking */; };
 		1B6E55FD26D550460004C5DD /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6E55FB26D550460004C5DD /* CommentCell.swift */; };
 		1B6E55FE26D550460004C5DD /* CommentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B6E55FC26D550460004C5DD /* CommentCell.xib */; };
 		1B6E560526D55C4B0004C5DD /* PostDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6E560126D55C4B0004C5DD /* PostDetailViewModelTests.swift */; };
@@ -130,6 +135,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B0E60EC26D5F157007EA89A /* RxRelay in Frameworks */,
+				1B0E60EA26D5F157007EA89A /* RxTest in Frameworks */,
+				1B0E60EE26D5F157007EA89A /* RxCocoa in Frameworks */,
+				1B0E60E826D5F157007EA89A /* RxSwift in Frameworks */,
+				1B0E60F026D5F157007EA89A /* RxBlocking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,6 +393,13 @@
 			dependencies = (
 			);
 			name = Healios;
+			packageProductDependencies = (
+				1B0E60E726D5F157007EA89A /* RxSwift */,
+				1B0E60E926D5F157007EA89A /* RxTest */,
+				1B0E60EB26D5F157007EA89A /* RxRelay */,
+				1B0E60ED26D5F157007EA89A /* RxCocoa */,
+				1B0E60EF26D5F157007EA89A /* RxBlocking */,
+			);
 			productName = Healios;
 			productReference = 1BA47CD626D51E8D0059EE36 /* Healios.app */;
 			productType = "com.apple.product-type.application";
@@ -454,6 +471,9 @@
 				Base,
 			);
 			mainGroup = 1BA47CCD26D51E8D0059EE36;
+			packageReferences = (
+				1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */,
+			);
 			productRefGroup = 1BA47CD726D51E8D0059EE36 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -857,6 +877,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1B0E60E726D5F157007EA89A /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		1B0E60E926D5F157007EA89A /* RxTest */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxTest;
+		};
+		1B0E60EB26D5F157007EA89A /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		1B0E60ED26D5F157007EA89A /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		1B0E60EF26D5F157007EA89A /* RxBlocking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B0E60E626D5F157007EA89A /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxBlocking;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		1BA47CE226D51E8D0059EE36 /* Healios.xcdatamodeld */ = {

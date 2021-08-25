@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import Combine
+import RxSwift
+import RxCocoa
 
 struct PostsViewModel {
     let navigator: PostsNavigatorType
@@ -16,51 +17,57 @@ struct PostsViewModel {
 // MARK: - ViewModelType
 extension PostsViewModel: ViewModelType {
     struct Input {
-        let loadTrigger: AnyPublisher<Void, Never>
-        let searchTextTrigger: AnyPublisher<String, Never>
-        let selectPostTrigger: AnyPublisher<IndexPath, Never>
+        let loadTrigger: Driver<Void>
+        let searchTextTrigger: Driver<String>
+        let selectPostTrigger: Driver<IndexPath>
     }
     
-    final class Output: ObservableObject {
-        @Published var posts = [Post]()
+    struct Output {
+        let posts: Driver<[Post]>
     }
     
-    func transform(_ input: Input, _ cancelBag: CancelBag) -> Output {
-        let output = Output()
-        
-        input.loadTrigger
-            .flatMap({
-                self.useCase.retrievePostFromDB()
-                    .catch { _ in Empty() }
-            })
-            .assign(to: \.posts, on: output)
-            .store(in: cancelBag)
-        
-        input.loadTrigger
-            .flatMap { posts in
-                self.useCase
-                    .getPosts()
-                    .catch { _ in Empty() }
-            }
-            .flatMap { posts in
-                return self.useCase
-                    .savePostsToDB(posts)
-                    .catch { _ in Empty() }
-            }
-            .flatMap({ _ in
-                self.useCase.retrievePostFromDB()
-                    .catch { _ in Empty() }
-            })
-            .assign(to: \.posts, on: output)
-            .store(in: cancelBag)
+    func transform(_ input: Input) -> Output {
+        let posts = input.loadTrigger.flatMapLatest {
+            return self.useCase
+                .getPosts()
+                .asDriverOnErrorJustComplete()
+        }
 
-        input.selectPostTrigger
-            .sink(receiveValue: {
-                let post = output.posts[$0.row]
-                self.navigator.toPostDetail(post: post)
-            })
-            .store(in: cancelBag)
+        let output = Output(posts: posts)
         
-        return output
+//        input.loadTrigger
+//            .flatMap({
+//                self.useCase.retrievePostFromDB()
+//                    .catch { _ in Empty() }
+//            })
+//            .assign(to: \.posts, on: output)
+//            .store(in: cancelBag)
+//
+//        input.loadTrigger
+//            .flatMap { posts in
+//                self.useCase
+//                    .getPosts()
+//                    .catch { _ in Empty() }
+//            }
+//            .flatMap { posts in
+//                return self.useCase
+//                    .savePostsToDB(posts)
+//                    .catch { _ in Empty() }
+//            }
+//            .flatMap({ _ in
+//                self.useCase.retrievePostFromDB()
+//                    .catch { _ in Empty() }
+//            })
+//            .assign(to: \.posts, on: output)
+//            .store(in: cancelBag)
+//
+//        input.selectPostTrigger
+//            .sink(receiveValue: {
+//                let post = output.posts[$0.row]
+//                self.navigator.toPostDetail(post: post)
+//            })
+//            .store(in: cancelBag)
+//
+//        return output
     }
 }

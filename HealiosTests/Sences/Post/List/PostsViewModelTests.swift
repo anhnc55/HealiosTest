@@ -36,19 +36,60 @@ final class PostsViewModelTests: XCTestCase {
         output = viewModel.transform(input, cancelBag)
     }
     
-    func test_load_post_List_success() {
+    func test_load_post_list_fromDB_success() {
+        let expectation = XCTestExpectation(description: self.debugDescription)
+
+        loadTrigger.send(())
+        var expectationPosts = [Post]()
+
+        self.useCase
+            .retrievePostFromDBReturnValue.sink { _ in } receiveValue: { posts in
+                expectationPosts = posts
+                expectation.fulfill()
+            }
+            .store(in: cancelBag)
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssert(self.useCase.retrievePostFromDBCalled)
+        XCTAssertTrue(expectationPosts.count == 2)
+    }
+    
+    func test_load_post_list_fromAPI_success() {
         let expectation = XCTestExpectation(description: self.debugDescription)
 
         loadTrigger.send(())
         
+        var expectationPosts = [Post]()
+        
         self.useCase
             .getPostsReturnValue.sink { _ in } receiveValue: { posts in
+                expectationPosts = posts
                 expectation.fulfill()
             }
             .store(in: cancelBag)
         
         wait(for: [expectation], timeout: 5.0)
         XCTAssert(self.useCase.getPostsCalled)
+        XCTAssertTrue(expectationPosts.count == 2)
+    }
+    
+    func test_save_post_list_toDB_success() {
+        let expectation = XCTestExpectation(description: self.debugDescription)
+
+        loadTrigger.send(())
+        
+        var expectationSavePosts = false
+        
+        self.useCase
+            .savePostsToDBReturnValue.sink { _ in } receiveValue: { success in
+                expectationSavePosts = success
+                expectation.fulfill()
+            }
+            .store(in: cancelBag)
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertTrue(expectationSavePosts)
+        XCTAssert(self.useCase.savePostsToDBCalled)
     }
     
     func test_selectPostTrigger_toPostDetail() {

@@ -11,7 +11,7 @@ import Combine
 final class PostsUseCaseMock: PostsUseCaseType {
     var getPostsCalled = false
     var getPostsReturnValue = Future<[Post], APIError> { promise in
-        promise(.success([]))
+        promise(.success([Post.mock, Post.mock]))
     }
     .eraseToAnyPublisher()
     func getPosts() -> AnyPublisher<[Post], APIError> {

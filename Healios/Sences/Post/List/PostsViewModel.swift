@@ -30,7 +30,9 @@ extension PostsViewModel: ViewModelType {
         let posts = input.loadTrigger
             .flatMapLatest { _ in
                 self.useCase.getPosts()
-                    .asDriver(onErrorDriveWith: Driver.just([]))
+                    .asDriver { error in
+                        return Driver.empty()
+                    }
             }
         
         let selectedPost = input.selectPostTrigger

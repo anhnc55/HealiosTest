@@ -52,7 +52,9 @@ extension PostDetailViewModel: ViewModelType {
                     .map {
                         $0.filter { $0.postId == self.post.userId }
                     }
-                    .asDriver(onErrorDriveWith: Driver.empty())
+                    .asDriver { error in
+                        return Driver.empty()
+                    }
             }
         
         return Output(posts: post,

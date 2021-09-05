@@ -7,7 +7,9 @@
 
 @testable import Healios
 import XCTest
-import Combine
+import RxSwift
+import RxCocoa
+import RxBlocking
 
 final class PostsViewModelTests: XCTestCase {
     private var viewModel: PostsViewModel!
@@ -17,51 +19,45 @@ final class PostsViewModelTests: XCTestCase {
     private var input: PostsViewModel.Input!
     private var output: PostsViewModel.Output!
     
-    private var cancelBag: CancelBag!
-    
-    private let loadTrigger = PassthroughSubject<Void, Never>()
-    private let selectPostTrigger = PassthroughSubject<IndexPath, Never>()
-    private let searchTextTrigger = PassthroughSubject<String, Never>()
+    let disposeBag = DisposeBag()
+
+    private let loadTrigger = PublishSubject<Void>()
+    private let selectPostTrigger = PublishSubject<IndexPath>()
     
     override func setUp() {
         super.setUp()
         navigator = PostsNavigatorMock()
         useCase = PostsUseCaseMock()
-        cancelBag = CancelBag()
+
         viewModel = PostsViewModel(navigator: navigator, useCase: useCase)
         
-        input = PostsViewModel.Input(loadTrigger: loadTrigger.eraseToAnyPublisher(),
-                                            searchTextTrigger: searchTextTrigger.eraseToAnyPublisher(),
-                                            selectPostTrigger: selectPostTrigger.eraseToAnyPublisher())
-        output = viewModel.transform(input, cancelBag)
+        input = PostsViewModel.Input(loadTrigger: loadTrigger.asDriver { error in
+            return Driver.empty()
+        },
+                                     selectPostTrigger: selectPostTrigger.asDriver { error in
+            return Driver.empty()
+        })
+        output = viewModel.transform(input)
     }
     
-    func test_load_post_List_success() {
-        let expectation = XCTestExpectation(description: self.debugDescription)
+    func test_load_post_list_success() {
+        // act
+        output.posts.drive().disposed(by: disposeBag)
+        loadTrigger.onNext(())
+        let posts = try! output.posts.toBlocking().first()
 
-        loadTrigger.send(())
-        
-        self.useCase
-            .getPostsReturnValue.sink { _ in } receiveValue: { posts in
-                expectation.fulfill()
-            }
-            .store(in: cancelBag)
-        
-        wait(for: [expectation], timeout: 5.0)
-        XCTAssert(self.useCase.getPostsCalled)
+        // assert
+        XCTAssert(useCase.getPostsCalled)
+        XCTAssertTrue(posts?.count == 1)
     }
     
     func test_selectPostTrigger_toPostDetail() {
-        let expectation = XCTestExpectation(description: self.debugDescription)
+        output.posts.drive().disposed(by: disposeBag)
+        output.selectedPost.drive().disposed(by: disposeBag)
+        loadTrigger.onNext(())
+        selectPostTrigger.onNext(IndexPath(row: 0, section: 0))
 
-        loadTrigger.send(())
-        self.selectPostTrigger.send(IndexPath(item: 0, section: 0))
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 5.0)
-        XCTAssert(self.navigator.toPostDetailCalled)
+        // assert
+        XCTAssertTrue(navigator.toPostDetailCalled)
     }
 }

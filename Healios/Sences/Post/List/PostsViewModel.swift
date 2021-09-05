@@ -18,56 +18,28 @@ struct PostsViewModel {
 extension PostsViewModel: ViewModelType {
     struct Input {
         let loadTrigger: Driver<Void>
-        let searchTextTrigger: Driver<String>
         let selectPostTrigger: Driver<IndexPath>
     }
     
     struct Output {
         let posts: Driver<[Post]>
+        let selectedPost: Driver<Post>
     }
     
     func transform(_ input: Input) -> Output {
-        let posts = input.loadTrigger.flatMapLatest {
-            return self.useCase
-                .getPosts()
-                .asDriverOnErrorJustComplete()
-        }
-
-        let output = Output(posts: posts)
+        let posts = input.loadTrigger
+            .flatMapLatest { _ in
+                self.useCase.getPosts()
+                    .asDriver(onErrorDriveWith: Driver.just([]))
+            }
         
-//        input.loadTrigger
-//            .flatMap({
-//                self.useCase.retrievePostFromDB()
-//                    .catch { _ in Empty() }
-//            })
-//            .assign(to: \.posts, on: output)
-//            .store(in: cancelBag)
-//
-//        input.loadTrigger
-//            .flatMap { posts in
-//                self.useCase
-//                    .getPosts()
-//                    .catch { _ in Empty() }
-//            }
-//            .flatMap { posts in
-//                return self.useCase
-//                    .savePostsToDB(posts)
-//                    .catch { _ in Empty() }
-//            }
-//            .flatMap({ _ in
-//                self.useCase.retrievePostFromDB()
-//                    .catch { _ in Empty() }
-//            })
-//            .assign(to: \.posts, on: output)
-//            .store(in: cancelBag)
-//
-//        input.selectPostTrigger
-//            .sink(receiveValue: {
-//                let post = output.posts[$0.row]
-//                self.navigator.toPostDetail(post: post)
-//            })
-//            .store(in: cancelBag)
-//
-//        return output
+        let selectedPost = input.selectPostTrigger
+            .withLatestFrom(posts) { (indexPath, posts) -> Post in
+                return posts[indexPath.row]
+            }
+            .do(onNext: navigator.toPostDetail(post:))
+
+        return Output(posts: posts,
+                      selectedPost: selectedPost)
     }
 }

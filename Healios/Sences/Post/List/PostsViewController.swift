@@ -6,7 +6,8 @@
 //
 
 import UIKit
-import Combine
+import RxSwift
+import RxCocoa
 
 final class PostsViewController: UIViewController, BindableType {
     enum Section: Hashable {
@@ -15,18 +16,13 @@ final class PostsViewController: UIViewController, BindableType {
     
     // MARK: - IBOutlets
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
     
     // MARK: - Properties
     var viewModel: PostsViewModel!
-    var cancelBag = CancelBag()
+    private var disposeBag = DisposeBag()
     
     private var dataSource: UITableViewDiffableDataSource<Section, Post>! = nil
-    
-    private let searchTextTrigger = PassthroughSubject<String, Never>()
-    private let selectPostTrigger = PassthroughSubject<IndexPath, Never>()
-        
+            
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,18 +52,19 @@ final class PostsViewController: UIViewController, BindableType {
     
     func bindViewModel() {
         let input = PostsViewModel.Input(
-            loadTrigger: Just(()).eraseToAnyPublisher(),
-            searchTextTrigger: searchTextTrigger
-                .throttle(for: 0.5, scheduler: RunLoop.main, latest: true)
-                .eraseToAnyPublisher(),
-            selectPostTrigger: selectPostTrigger.eraseToAnyPublisher()
+            loadTrigger: Driver.just(()),
+            selectPostTrigger: tableView.rx.itemSelected.asDriver()
         )
         
-        let output = viewModel.transform(input, cancelBag)
+        let output = viewModel.transform(input)
                 
-        output.$posts
-            .sink { self.bindPostToTableView(posts: $0) }
-            .store(in: cancelBag)        
+        output.posts
+            .drive { self.bindPostToTableView(posts: $0) }
+            .disposed(by: disposeBag)
+        
+        output.selectedPost
+            .drive()
+            .disposed(by: disposeBag)
     }
 }
 
@@ -88,6 +85,5 @@ extension PostsViewController {
 extension PostsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        selectPostTrigger.send(indexPath)
     }
 }

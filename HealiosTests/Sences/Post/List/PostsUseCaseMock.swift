@@ -6,35 +6,27 @@
 //
 
 @testable import Healios
-import Combine
+import RxSwift
 
 final class PostsUseCaseMock: PostsUseCaseType {
     var getPostsCalled = false
-    var getPostsReturnValue = Future<[Post], APIError> { promise in
-        promise(.success([]))
-    }
-    .eraseToAnyPublisher()
-    func getPosts() -> AnyPublisher<[Post], APIError> {
+    var getPostsReturnValue = Observable.just([Post.mock])
+    func getPosts() -> Observable<[Post]> {
         getPostsCalled = true
         return getPostsReturnValue
     }
     
     var savePostsToDBCalled = false
-    var savePostsToDBReturnValue = Future<Bool, Error> { promise in
-        promise(.success(true))
-    }
-    .eraseToAnyPublisher()
-    func savePostsToDB(_ posts: [Post]) -> AnyPublisher<Bool, Error> {
+    var savePostsToDBReturnValue = Observable.just(true)
+    func savePostsToDB(_ posts: [Post]) -> Observable<Bool> {
         savePostsToDBCalled = true
         return savePostsToDBReturnValue
     }
     
     var retrievePostFromDBCalled = false
-    var retrievePostFromDBReturnValue = Future<[Post], Error> { promise in
-        promise(.success([Post.mock, Post.mock]))
-    }
-    .eraseToAnyPublisher()
-    func retrievePostFromDB() -> AnyPublisher<[Post], Error> {
+    var retrievePostFromDBReturnValue = Observable.just([Post.mock, Post.mock])
+    
+    func retrievePostFromDB() -> Observable<[Post]> {
         retrievePostFromDBCalled = true
         return retrievePostFromDBReturnValue
     }

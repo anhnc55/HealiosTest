@@ -4,25 +4,22 @@
 //
 //  Created by Anh Nguyen on 24/08/2021.
 //
-import Combine
+import RxSwift
 
 protocol PostsUseCaseType {
-    func getPosts() -> AnyPublisher<[Post], APIError>
-    func savePostsToDB(_ posts: [Post]) -> AnyPublisher<Bool, Error>
-    func retrievePostFromDB() -> AnyPublisher<[Post], Error>
-
+    func getPosts() -> Observable<[Post]>
 }
 
 struct PostsUseCase: PostsUseCaseType {
-    func getPosts() -> AnyPublisher<[Post], APIError> {
-        Post.getPosts()
-    }
-    
-    func savePostsToDB(_ posts: [Post]) -> AnyPublisher<Bool, Error> {
-        Post.savePostsToDB(posts)
-    }
-    
-    func retrievePostFromDB() -> AnyPublisher<[Post], Error> {
-        Post.retrievePostFromDB()
+    func getPosts() -> Observable<[Post]> {
+        let localPosts = Post.retrievePostFromDB()
+        let savePostsToLocal = Post.getPosts()
+            .flatMap { posts in
+                return Post.savePostsToDB(posts)
+                    .map { _ in
+                        return posts
+                    }
+            }
+        return Observable.concat([localPosts.take(1), savePostsToLocal])
     }
 }

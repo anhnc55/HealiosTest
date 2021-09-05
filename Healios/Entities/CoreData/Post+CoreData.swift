@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 import UIKit
-import Combine
+import RxSwift
 
 extension Post {
     init(postMO: PostMO) {
@@ -20,14 +20,14 @@ extension Post {
 }
 
 extension Post {
-    static func savePostsToDB(_ posts: [Post]) -> AnyPublisher<Bool, Error> {
+    static func savePostsToDB(_ posts: [Post]) -> Observable<Bool> {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let managedContext = appDelegate.persistentContainer.viewContext
         
         let postEntity = NSEntityDescription.entity(forEntityName: "PostMO",
                                                     in: managedContext)!
         let fetchRequest:NSFetchRequest<NSFetchRequestResult> = NSFetchRequest.init(entityName: "PostMO")
-
+        
         for i in 0..<posts.count {
             fetchRequest.predicate = NSPredicate(format: "id = %d", posts[i].id)
             do {
@@ -48,33 +48,32 @@ extension Post {
                 print("Could not save: \(error.localizedDescription)")
             }
         }
-        return Future<Bool, Error> { promise in
+        return Observable.create { observer in
             do {
                 try managedContext.save()
-                promise(.success(true))
+                observer.onNext(true)
             } catch {
                 print("Could not save: \(error.localizedDescription)")
-                promise(.failure(error))
+                observer.onError(error)
             }
+            return Disposables.create()
         }
-        .eraseToAnyPublisher()
     }
     
-    static func retrievePostFromDB() -> AnyPublisher<[Post], Error> {
+    static func retrievePostFromDB() -> Observable<[Post]> {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let managedContext = appDelegate.persistentContainer.viewContext
-
+        
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "PostMO")
-        return Future<[Post], Error> { promise in
-            
+        return Observable.create { observer in
             do {
                 let results = try managedContext.fetch(fetchRequest) as! [PostMO]
-                promise(.success(results.map({ Post(postMO: $0) })))
+                let posts = results.map({ Post(postMO: $0) })
+                observer.onNext(posts)
             } catch {
-                print("Retrieve Data Failed")
-                promise(.failure(error))
+                observer.onError(error)
             }
+            return Disposables.create()
         }
-        .eraseToAnyPublisher()
     }
 }

@@ -5,12 +5,10 @@
 //  Created by Anh Nguyen on 24/08/2021.
 //
 
-import Combine
+import RxSwift
 
 extension User {
-    static func getUsers() -> AnyPublisher<[User], APIError> {
-        return API.shared
-            .request(endpoint: .users)
-            .eraseToAnyPublisher()
+    static func getUsers() -> Observable<[User]> {
+        Network<User>().getItems(.users)
     }
 }

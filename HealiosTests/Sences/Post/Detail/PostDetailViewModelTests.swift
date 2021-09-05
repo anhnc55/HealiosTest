@@ -7,7 +7,8 @@
 
 @testable import Healios
 import XCTest
-import Combine
+import RxCocoa
+import RxSwift
 
 final class PostDetailViewModelTests: XCTestCase {
     private var viewModel: PostDetailViewModel!
@@ -17,49 +18,40 @@ final class PostDetailViewModelTests: XCTestCase {
     private var input: PostDetailViewModel.Input!
     private var output: PostDetailViewModel.Output!
     
-    private var cancelBag: CancelBag!
+    private var disposeBag = DisposeBag ()
     
-    private let loadTrigger = PassthroughSubject<Void, Never>()
+    private let loadTrigger = PublishSubject<Void>()
     
     override func setUp() {
         super.setUp()
         navigator = PostDetailNavigatorMock()
         useCase = PostDetailUseCaseMock()
-        cancelBag = CancelBag()
+        
         viewModel = PostDetailViewModel(navigator: navigator, useCase: useCase, post: Post.mock)
         
-        input = PostDetailViewModel.Input(loadTrigger: loadTrigger.eraseToAnyPublisher())
-        output = viewModel.transform(input, cancelBag)
+        input = PostDetailViewModel.Input(loadTrigger: loadTrigger.asDriver { error in
+            return Driver.empty()
+        })
+        output = viewModel.transform(input)
     }
     
     func test_load_users_success() {
-        let expectation = XCTestExpectation(description: self.debugDescription)
-
-        loadTrigger.send(())
-        
-        self.useCase
-            .getUsersReturnValue.sink { _ in } receiveValue: { PostDetail in
-                expectation.fulfill()
-            }
-            .store(in: cancelBag)
-        
-        wait(for: [expectation], timeout: 5.0)
-        XCTAssert(self.useCase.getUsersCalled)
+        // act
+        output.user.drive().disposed(by: disposeBag)
+        loadTrigger.onNext(())
+        // assert
+        XCTAssert(useCase.getUsersCalled)
     }
     
     func test_load_comments_success() {
-        let expectation = XCTestExpectation(description: self.debugDescription)
+        // act
+        output.comments.drive().disposed(by: disposeBag)
+        loadTrigger.onNext(())
+        let comments = try! output.comments.toBlocking().first()
 
-        loadTrigger.send(())
-        
-        self.useCase
-            .getCommentsReturnValue.sink { _ in } receiveValue: { PostDetail in
-                expectation.fulfill()
-            }
-            .store(in: cancelBag)
-        
-        wait(for: [expectation], timeout: 5.0)
-        XCTAssert(self.useCase.getCommentsCalled)
+        // assert
+        XCTAssert(useCase.getCommentsCalled)
+        XCTAssertTrue(comments?.count == 0)
     }
 
 }

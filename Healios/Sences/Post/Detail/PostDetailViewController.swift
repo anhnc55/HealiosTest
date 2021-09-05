@@ -6,7 +6,8 @@
 //
 
 import UIKit
-import Combine
+import RxCocoa
+import RxSwift
 
 final class PostDetailViewController: UIViewController, BindableType {
     enum Section: Hashable {
@@ -21,7 +22,7 @@ final class PostDetailViewController: UIViewController, BindableType {
     @IBOutlet weak var tableView: UITableView!
     // MARK: - Properties
     var viewModel: PostDetailViewModel!
-    private let cancelBag = CancelBag()
+    private let disposeBag = DisposeBag()
 
     private var dataSource: UITableViewDiffableDataSource<Section, Comment>! = nil
     
@@ -51,26 +52,27 @@ final class PostDetailViewController: UIViewController, BindableType {
     }
     
     func bindViewModel() {
-        let input = PostDetailViewModel.Input(loadTrigger: Just(()).eraseToAnyPublisher())
-        let output = viewModel.transform(input, cancelBag)
+        let input = PostDetailViewModel.Input(loadTrigger:
+                                                Driver.just(()))
+        let output = viewModel.transform(input)
         
-        output.$post
-            .sink { [weak self] post in
+        output.posts
+            .drive { [weak self] post in
                 self?.bindPostData(post: post)
             }
-            .store(in: cancelBag)
+            .disposed(by: disposeBag)
         
-        output.$user
-            .sink { [weak self] user in
+        output.user
+            .drive { [weak self] user in
                 self?.bindUserData(user: user)
             }
-            .store(in: cancelBag)
+            .disposed(by: disposeBag)
         
-        output.$comments
-            .sink { [weak self] comments in
+        output.comments
+            .drive { [weak self] comments in
                 self?.bindCommentsData(comments: comments)
             }
-            .store(in: cancelBag)
+            .disposed(by: disposeBag)
     }
 }
 

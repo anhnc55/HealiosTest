@@ -17,9 +17,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="eVi-d5-4eI">
-                                <rect key="frame" x="185" y="387" width="20" height="20"/>
-                            </activityIndicatorView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="k3U-Zx-PPu">
                                 <rect key="frame" x="0.0" y="44" width="390" height="766"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -29,16 +26,13 @@
                         <viewLayoutGuide key="safeArea" id="Nzx-sJ-WSC"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="eVi-d5-4eI" firstAttribute="centerX" secondItem="Nzx-sJ-WSC" secondAttribute="centerX" id="1fV-c7-eyG"/>
                             <constraint firstItem="Nzx-sJ-WSC" firstAttribute="trailing" secondItem="k3U-Zx-PPu" secondAttribute="trailing" id="Obo-go-ggh"/>
                             <constraint firstItem="k3U-Zx-PPu" firstAttribute="leading" secondItem="Nzx-sJ-WSC" secondAttribute="leading" id="aMR-rd-gdb"/>
-                            <constraint firstItem="eVi-d5-4eI" firstAttribute="centerY" secondItem="Nzx-sJ-WSC" secondAttribute="centerY" constant="-30" id="apm-ZK-BW8"/>
                             <constraint firstItem="Nzx-sJ-WSC" firstAttribute="bottom" secondItem="k3U-Zx-PPu" secondAttribute="bottom" id="dVa-v9-dXa"/>
                             <constraint firstItem="k3U-Zx-PPu" firstAttribute="top" secondItem="Nzx-sJ-WSC" secondAttribute="top" id="kLj-wI-g15"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIndicator" destination="eVi-d5-4eI" id="Ijb-9o-nzd"/>
                         <outlet property="tableView" destination="k3U-Zx-PPu" id="LcM-gU-UVv"/>
                     </connections>
                 </viewController>
@@ -66,14 +60,14 @@
                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SpW-In-7le">
-                                <rect key="frame" x="16" y="114.33333333333333" width="358" height="19.333333333333329"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SpW-In-7le">
+                                <rect key="frame" x="16" y="114.33333333333333" width="358" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vFu-ot-NKL">
-                                <rect key="frame" x="0.0" y="149.66666666666669" width="390" height="694.33333333333326"/>
+                                <rect key="frame" x="0.0" y="130.33333333333331" width="390" height="713.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                         </subviews>

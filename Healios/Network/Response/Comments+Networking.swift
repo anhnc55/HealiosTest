@@ -5,12 +5,10 @@
 //  Created by Anh Nguyen on 24/08/2021.
 //
 
-import Combine
+import RxSwift
 
 extension Comment {
-    static func getComments() -> AnyPublisher<[Comment], APIError> {
-        return API.shared
-            .request(endpoint: .comments)
-            .eraseToAnyPublisher()
+    static func getComments() -> Observable<[Comment]> {
+        Network<Comment>().getItems(.comments)
     }
 }

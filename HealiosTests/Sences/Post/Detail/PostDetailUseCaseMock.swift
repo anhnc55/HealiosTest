@@ -6,25 +6,19 @@
 //
 
 @testable import Healios
-import Combine
+import RxSwift
 
 final class PostDetailUseCaseMock: PostDetailUseCaseType {
     var getUsersCalled = false
-    var getUsersReturnValue = Future<[User], APIError> { promise in
-        promise(.success([]))
-    }
-    .eraseToAnyPublisher()
-    func getUsers() -> AnyPublisher<[User], APIError> {
+    var getUsersReturnValue: Observable<[User]> = Observable.just([])
+    func getUsers() -> Observable<[User]> {
         getUsersCalled = true
         return getUsersReturnValue
     }
     
     var getCommentsCalled = false
-    var getCommentsReturnValue = Future<[Comment], APIError> { promise in
-        promise(.success([]))
-    }
-    .eraseToAnyPublisher()
-    func getComments() -> AnyPublisher<[Comment], APIError> {
+    var getCommentsReturnValue: Observable<[Comment]> = Observable.just([])
+    func getComments() -> Observable<[Comment]> {
         getCommentsCalled = true
         return getCommentsReturnValue
     }
